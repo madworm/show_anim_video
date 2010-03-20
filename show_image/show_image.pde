@@ -78,10 +78,15 @@ void setup(void) {
 
 
 void loop(void) {
+  /* this would show the images stored in the above PROGMEM arrays
   byte counter;
   for (counter=0; counter<10; counter++) {
     show_image(counter,100);
   }
+  */
+
+  /* receive image data over serial */
+  serial_handler();	
 }
 
 
