@@ -11,10 +11,10 @@
 #define __max_brightness __brightness_levels-1
 #define __fade_delay 4
 #define __fade_delay_micros 400  // in microseconds
-#define __fade_out_display 20000 // in milliseconds
+#define __fade_out_display 2000 // in milliseconds
 
-#define __LED_rx_buffer_length 7
-#define __LED_rx_data_length 5
+#define __LED_rx_buffer_length 43
+#define __LED_rx_data_length 40
 #define __LED_start_byte 0x0A
 #define __LED_stop_byte 0x0D
 
@@ -33,7 +33,7 @@ byte brightness_blue[__leds_per_row][__rows];
 
 
 void setup(void) {
-  Serial.begin(19200);
+  Serial.begin(57600);
   pinMode(__spi_clock,OUTPUT);
   pinMode(__spi_latch,OUTPUT);
   pinMode(__spi_data,OUTPUT);
@@ -59,7 +59,7 @@ void loop(void) {
   if ( Serial.available() ) {
     LED_data = Serial.read();
     if ( LED_data == __LED_start_byte ) {
-      blink_led();
+      //blink_led();
       while (LED_rx_ctr <= __LED_rx_data_length) {
         if ( Serial.available() ) {
           LED_rx_buffer[LED_rx_ctr] = Serial.read();
@@ -68,10 +68,13 @@ void loop(void) {
       }
       LED_rx_ctr = 0;
       if ( LED_rx_buffer[__LED_rx_data_length] == __LED_stop_byte) {
-        blink_led();
-	set_led_red(LED_rx_buffer[0],LED_rx_buffer[1],LED_rx_buffer[2]);
-	set_led_green(LED_rx_buffer[0],LED_rx_buffer[1],LED_rx_buffer[3]);
-	set_led_blue(LED_rx_buffer[0],LED_rx_buffer[1],LED_rx_buffer[4]); 
+        //blink_led();
+	byte counter;
+        for ( counter = 0; counter < 8; counter++ ) {
+          set_led_red(LED_rx_buffer[counter*5+0],LED_rx_buffer[counter*5+1],LED_rx_buffer[counter*5+2]);
+	  set_led_green(LED_rx_buffer[counter*5+0],LED_rx_buffer[counter*5+1],LED_rx_buffer[counter*5+3]);
+	  set_led_blue(LED_rx_buffer[counter*5+0],LED_rx_buffer[counter*5+1],LED_rx_buffer[counter*5+4]);
+        }
 	clear_buffer(LED_rx_buffer,__LED_rx_buffer_length);
         timer = millis(); 
       }

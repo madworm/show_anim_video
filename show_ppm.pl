@@ -14,7 +14,7 @@ my $port = "/dev/ttyUSB0"; # <-- find right port !
 my $link = Device::SerialPort->new($port) || die("could not open port: $port - $!"); # <-- match to right com port
 
 $link->databits(8);
-$link->baudrate(19200); # <-- match to arduino settings
+$link->baudrate(57600); # <-- match to arduino settings
 $link->parity("none");
 $link->stopbits(1);
 $| = 1; # buffers disabled
@@ -58,19 +58,19 @@ my $row;
 my $led;
 
 for ($row = 0; $row < 8; $row++) {
+  $link->write($start_byte);
   for ($led = 0; $led < 8; $led++) {
-    $link->write($start_byte);
     $link->write(pack("C",$row));
     $link->write(pack("C",$led));
     $link->write(pack("C",unpack("C",$image[$row*3*8+$led*3+0])/$color_scaler));
     $link->write(pack("C",unpack("C",$image[$row*3*8+$led*3+1])/$color_scaler));
     $link->write(pack("C",unpack("C",$image[$row*3*8+$led*3+2])/$color_scaler));
-    $link->write($stop_byte);
     #print $row,$led,"\n";
     #print unpack("C",$image[$row*3*8+$led*3+0]),"\n";
     #print unpack("C",$image[$row*3*8+$led*3+1]),"\n";
     #print unpack("C",$image[$row*3*8+$led*3+2]),"\n\n";
-    sleep(0.035);
+    sleep(0.002);
   }
+  $link->write($stop_byte);
 }
 
